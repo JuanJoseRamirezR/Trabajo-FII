@@ -1,0 +1,544 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Riesgo Cafetero Anserma</title>
+<style>
+:root{
+  --bg:#f4f6f2;--surface:#fff;--ink:#1b2a22;--muted:#58675f;--line:#dbe1d6;--accent:#214f66;--on-accent:#fff;
+  --c0:#2b7a4b;--c1:#9a6b00;--c2:#bb4f12;--c3:#a3202f;
+  --b0:#e4f2e8;--b1:#f8efd2;--b2:#fbe5d6;--b3:#f9dde0;
+  --font:"Segoe UI",system-ui,-apple-system,sans-serif;--r:12px;
+}
+@media(prefers-color-scheme:dark){:root{color-scheme:dark;
+  --bg:#111915;--surface:#19231e;--ink:#e6efe9;--muted:#9fb2a7;--line:#2c3b33;--accent:#86c4e0;--on-accent:#0d1a22;
+  --c0:#66c28a;--c1:#e2b84a;--c2:#f0905a;--c3:#f08793;
+  --b0:#17301f;--b1:#33290c;--b2:#382213;--b3:#3a171c}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.55 var(--font);-webkit-text-size-adjust:100%}
+h1,h2,h3,p,ul,ol{margin:0}
+a{color:var(--accent)}
+.wrap{max-width:1160px;margin:0 auto;padding:0 16px 56px}
+header{padding:32px 0 24px}
+.kicker{font-size:13px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:600}
+h1{font-size:clamp(28px,5vw,42px);line-height:1.1;margin:6px 0 10px}
+.lead{max-width:64ch;color:var(--muted)}
+.layout{display:grid;grid-template-columns:minmax(0,5fr) minmax(0,7fr);gap:24px;align-items:start}
+@media(max-width:880px){.layout{grid-template-columns:minmax(0,1fr)}}
+.stack{display:flex;flex-direction:column;gap:20px}
+.panel,.card{background:var(--surface);border:1px solid var(--line);border-radius:var(--r)}
+.panel{padding:20px}
+.panel>h2{font-size:20px;margin-bottom:4px}
+.sub,.hint{color:var(--muted);font-size:14px}
+.sub{margin-bottom:16px}
+.note{background:var(--b1);border-left:4px solid var(--c1);padding:8px 12px;border-radius:0 8px 8px 0;font-size:14px;margin-bottom:16px}
+.step{border-top:1px solid var(--line);padding:18px 0 4px}
+.step:first-of-type{border-top:0;padding-top:4px}
+.step h3{display:flex;align-items:center;gap:10px;font-size:16px;margin-bottom:12px}
+.step h3 i{font-style:normal;display:grid;place-items:center;width:26px;height:26px;border-radius:50%;background:var(--accent);color:var(--on-accent);font-size:13px}
+.field{display:flex;flex-direction:column;gap:4px;margin-bottom:14px}
+.field>label{font-weight:600;font-size:15px}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+@media(max-width:420px){.row{grid-template-columns:1fr}}
+input[type=number],select{width:100%;font:inherit;color:var(--ink);background:var(--bg);border:1.5px solid var(--line);border-radius:8px;padding:9px 12px;min-height:44px}
+input:focus-visible,select:focus-visible,button:focus-visible,summary:focus-visible,.opt:focus-within{outline:3px solid var(--accent);outline-offset:2px}
+input[aria-invalid=true]{border-color:var(--c3)}
+.err{color:var(--c3);font-size:13px;font-weight:600}
+.opts{display:flex;flex-direction:column;gap:8px;margin-bottom:14px}
+.opt{display:flex;gap:10px;align-items:flex-start;border:1.5px solid var(--line);border-radius:8px;padding:10px 12px;cursor:pointer;background:var(--bg)}
+.opt input{margin-top:4px;accent-color:var(--accent);width:18px;height:18px;flex:none}
+.opt b{display:block;font-weight:600;font-size:15px}
+.opt small{color:var(--muted)}
+.opt:has(input:checked){border-color:var(--accent);background:var(--surface);box-shadow:inset 4px 0 0 var(--accent)}
+.btns{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+button{font:inherit;font-weight:600;min-height:44px;padding:8px 16px;border-radius:8px;border:1.5px solid var(--accent);background:var(--accent);color:var(--on-accent);cursor:pointer}
+button.ghost{background:transparent;color:var(--accent)}
+button.sm{min-height:34px;padding:3px 12px;font-size:14px}
+button:disabled{opacity:.5;cursor:not-allowed}
+.hidden{display:none!important}
+sup a{text-decoration:none;font-weight:700;font-size:12px}
+.results{position:sticky;top:16px}
+@media(max-width:880px){.results{position:static}}
+.card-head{display:flex;flex-wrap:wrap;gap:8px 16px;align-items:center;justify-content:space-between;padding:16px 20px;border-left:8px solid var(--lc);background:var(--lb);border-radius:var(--r) var(--r) 0 0}
+.card-head h2{font-size:20px}
+.card-head em{display:block;color:var(--muted);font-size:14px}
+.pill{font-weight:700;padding:3px 14px;border-radius:999px;background:var(--lc);color:var(--surface);font-size:14px}
+.card-body{padding:18px 20px;display:flex;flex-direction:column;gap:16px}
+.score{display:flex;align-items:baseline;gap:8px}
+.score b{font-size:42px;line-height:1;font-variant-numeric:tabular-nums}
+.meter{position:relative;height:12px;display:flex;border-radius:6px;margin-top:8px}
+.meter i{flex:1}
+.meter i:nth-child(1){background:var(--b0);border-radius:6px 0 0 6px}.meter i:nth-child(2){background:var(--b1)}
+.meter i:nth-child(3){background:var(--b2)}.meter i:nth-child(4){background:var(--b3);border-radius:0 6px 6px 0}
+.meter b{position:absolute;top:-5px;width:6px;height:22px;background:var(--ink);border:2px solid var(--surface);border-radius:3px;transform:translateX(-50%)}
+.scale{display:flex;justify-content:space-between;font-size:12px;color:var(--muted);margin-top:4px}
+.facts{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.facts div{background:var(--bg);border-radius:8px;padding:8px 12px;font-size:14px}
+.facts b{display:block;font-size:15px}
+.card h3{font-size:15px;margin-bottom:8px}
+.factors{list-style:none;padding:0;display:flex;flex-direction:column;gap:12px}
+.factors li{display:grid;grid-template-columns:1fr auto;gap:2px 12px;font-size:15px}
+.factors .v{font-weight:700}
+.bar{grid-column:1/-1;height:6px;background:var(--line);border-radius:3px;overflow:hidden}
+.bar i{display:block;height:100%;background:var(--accent)}
+.why{grid-column:1/-1;font-size:13px;color:var(--muted)}
+.recs{padding-left:20px;display:flex;flex-direction:column;gap:8px}
+.recs li::marker{color:var(--accent)}
+.warn{background:var(--b1);border-left:4px solid var(--c1);padding:10px 14px;border-radius:0 8px 8px 0;font-size:14px}
+.empty{border:2px dashed var(--line);border-radius:var(--r);padding:28px 20px;color:var(--muted);text-align:center}
+.disclaimer{font-size:13px;color:var(--muted)}
+.tally{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:16px 0}
+@media(max-width:420px){.tally{grid-template-columns:1fr}}
+.tally div{border:1px solid var(--line);border-radius:8px;padding:12px;background:var(--bg);font-size:14px}
+.tally b{display:block;font-size:26px}
+.hist{list-style:none;padding:0;display:flex;flex-direction:column;gap:10px}
+.hist li{border:1px solid var(--line);border-radius:8px;padding:10px 12px;background:var(--bg);display:flex;flex-direction:column;gap:8px;font-size:14px}
+.meta{display:flex;flex-wrap:wrap;gap:4px 12px}
+.tag{font-size:12px;font-weight:700;padding:1px 8px;border-radius:999px;border:1.5px solid currentColor}
+.t0{color:var(--c0)}.t1{color:var(--c1)}.t2{color:var(--c2)}.t3{color:var(--c3)}
+details{margin-top:14px}
+summary{cursor:pointer;font-weight:600}
+.refs{padding-left:24px;display:flex;flex-direction:column;gap:8px;font-size:14px;margin-top:12px}
+.refs li:target{background:var(--b1)}
+.method{display:flex;flex-direction:column;gap:10px;margin-top:10px;font-size:15px}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+  <p class="kicker">Anserma, Caldas · Prototipo académico</p>
+  <h1>Riesgo Cafetero Anserma</h1>
+  <p class="lead">Ingresa lo que mides en tu finca y calcula el riesgo de roya y broca con umbrales publicados por Cenicafé. La decisión se apoya en datos del cafetal, no en el almanaque ni en la tradición.</p>
+</header>
+
+<main class="stack">
+<div class="layout">
+  <form class="panel" id="form" novalidate autocomplete="off">
+    <h2>Datos de tu finca</h2>
+    <p class="sub">Los tres primeros datos son obligatorios. El resultado se actualiza mientras escribes.</p>
+    <div class="note" id="ejemplo-nota">Estos son valores de ejemplo. Cámbialos por los de tu lote.</div>
+
+    <section class="step">
+      <h3><i>1</i>Clima y ubicación</h3>
+      <div class="field">
+        <label for="alt">Altitud del lote (m s. n. m.)</label>
+        <input id="alt" type="number" inputmode="decimal" step="any" value="1750" aria-describedby="alt-e">
+        <span class="hint">Cada 100 m la temperatura baja cerca de 0,61 °C <sup><a href="#fuente-11">[11]</a></sup>.</span>
+        <span class="err" id="alt-e" role="alert"></span>
+      </div>
+      <div class="row">
+        <div class="field"><label for="temp">Temperatura media (°C)</label>
+          <input id="temp" type="number" inputmode="decimal" step="any" value="20" aria-describedby="temp-e"><span class="err" id="temp-e" role="alert"></span></div>
+        <div class="field"><label for="rh">Humedad relativa (%)</label>
+          <input id="rh" type="number" inputmode="decimal" step="any" value="85" aria-describedby="rh-e"><span class="err" id="rh-e" role="alert"></span></div>
+      </div>
+    </section>
+
+    <section class="step">
+      <h3><i>2</i>Cultivo</h3>
+      <div class="field"><label for="variedad">Variedad sembrada</label>
+        <select id="variedad">
+          <option value="sus" selected>Susceptible a roya (Caturra, Típica, Borbón)</option>
+          <option value="res">Resistente a roya (Castillo, Cenicafé 1)</option>
+        </select></div>
+      <div class="field"><label for="frutos">Frutos en el lote</label>
+        <select id="frutos">
+          <option value="0">Sin frutos de más de 20 semanas</option>
+          <option value="1" selected>Frutos en desarrollo de más de 20 semanas</option>
+          <option value="2">Cosecha en curso: frutos maduros, secos o caídos</option>
+        </select>
+        <span class="hint">La broca solo se reproduce en frutos de más de 20 semanas <sup><a href="#fuente-6">[6]</a></sup>.</span></div>
+    </section>
+
+    <section class="step">
+      <h3><i>3</i>Síntomas de roya en la hoja</h3>
+      <div class="opts" role="radiogroup" aria-label="Síntomas de roya">
+        <label class="opt"><input type="radio" name="rsint" value="0" checked><span><b>No veo síntomas</b><small>Hojas sanas por el haz y el envés.</small></span></label>
+        <label class="opt"><input type="radio" name="rsint" value="1"><span><b>Manchas amarillas pálidas</b><small>Se notan a contraluz <sup><a href="#fuente-15">[15]</a></sup>.</small></span></label>
+        <label class="opt"><input type="radio" name="rsint" value="2"><span><b>Polvo anaranjado en el envés</b><small>En varias hojas de varias plantas.</small></span></label>
+        <label class="opt"><input type="radio" name="rsint" value="3"><span><b>Polvo generalizado y caída de hojas</b><small>En casi todo el lote.</small></span></label>
+      </div>
+      <div class="field"><label for="rinc">Incidencia medida de roya (%) <span class="hint">· opcional</span></label>
+        <input id="rinc" type="number" inputmode="decimal" step="any" placeholder="Ej.: 6" aria-describedby="rinc-e">
+        <span class="hint">Hojas con roya sobre el total, en 10 árboles por hectárea <sup><a href="#fuente-12">[12]</a></sup>.</span>
+        <span class="err" id="rinc-e" role="alert"></span></div>
+    </section>
+
+    <section class="step">
+      <h3><i>4</i>Síntomas de broca en el fruto</h3>
+      <div class="field"><label for="bsint">Lo que ves en los frutos</label>
+        <select id="bsint">
+          <option value="0" selected>No veo frutos con orificio</option>
+          <option value="1">Algunos frutos con orificio en la corona</option>
+          <option value="2">Orificio y broca viva al abrirlos, en varios puntos</option>
+        </select></div>
+      <div class="field"><label for="binf">Infestación medida de broca (%) <span class="hint">· opcional</span></label>
+        <input id="binf" type="number" inputmode="decimal" step="any" placeholder="Ej.: 3" aria-describedby="binf-e">
+        <span class="hint">Frutos brocados sobre el total, en 30 árboles por hectárea <sup><a href="#fuente-12">[12]</a></sup>.</span>
+        <span class="err" id="binf-e" role="alert"></span></div>
+      <div id="bextra" class="hidden">
+        <div class="row">
+          <div class="field"><label for="bab">Brocas en posición A o B (%)</label>
+            <input id="bab" type="number" inputmode="decimal" step="any" aria-describedby="bab-e"><span class="err" id="bab-e" role="alert"></span></div>
+          <div class="field"><label for="bviv">De ellas, vivas (%)</label>
+            <input id="bviv" type="number" inputmode="decimal" step="any" aria-describedby="bviv-e"><span class="err" id="bviv-e" role="alert"></span></div>
+        </div>
+        <p class="hint">Abre 2 o 3 frutos brocados por sitio <sup><a href="#fuente-6">[6]</a></sup>. Con estos datos se aplica el criterio de Cenicafé para <i>Beauveria bassiana</i> <sup><a href="#fuente-7">[7]</a><a href="#fuente-8">[8]</a></sup>.</p>
+      </div>
+    </section>
+
+    <div class="btns" style="margin-top:8px">
+      <button type="button" class="ghost" id="limpiar">Borrar todo</button>
+      <button type="button" class="ghost" id="ejemplo">Volver al ejemplo</button>
+    </div>
+  </form>
+
+  <div class="results stack" id="resultados" aria-live="polite"></div>
+</div>
+
+<section class="panel" id="contraste">
+  <h2>Contrasta tu creencia con los datos</h2>
+  <p class="sub">Carl Sagan propone someter cada afirmación a confirmación independiente y buscar cómo podría ser falsa <sup><a href="#fuente-14">[14]</a></sup>. Guarda cada evaluación junto a lo que decía tu almanaque y, con el muestreo siguiente, anota si la plaga superó el umbral.</p>
+  <div class="field" style="max-width:460px">
+    <label for="trad">Qué decía tu almanaque o tradición</label>
+    <select id="trad">
+      <option value="ninguna">No consulté ninguno</option>
+      <option value="alto">Mal momento, esperaba plaga</option>
+      <option value="bajo">Buen momento, no esperaba plaga</option>
+    </select>
+  </div>
+  <div class="btns"><button type="button" id="guardar">Guardar esta evaluación</button><span class="hint" id="guardar-msg" role="status"></span></div>
+  <div class="tally" id="tally"></div>
+  <ul class="hist" id="hist"></ul>
+  <p class="hint" style="margin-top:12px">El método da alerta cuando roya o broca salen en nivel Alto o Crítico. La plaga «superó el umbral» si en el muestreo siguiente la roya llegó a 5 % o la broca a 2 % <sup><a href="#fuente-3">[3]</a></sup>. El historial queda solo en este navegador.</p>
+</section>
+
+<section class="panel" id="fuentes">
+  <h2>Fuentes y método</h2>
+  <details>
+    <summary>Cómo se calcula</summary>
+    <div class="method">
+      <p><b>Puntaje = 35 % ambiente + 65 % evidencia en campo</b>, de 0 a 100. Bajo &lt; 25, Moderado &lt; 50, Alto &lt; 75, Crítico desde 75.</p>
+      <p><b>Evidencia.</b> Se toma el mayor entre lo que ves y lo que mediste. Roya: &lt; 5 %, 5 a 15 %, &gt; 15 %. Broca: &lt; 2 %, 2 a 5 % (umbral de acción), &gt; 5 % (daño económico) <sup><a href="#fuente-3">[3]</a></sup>. Superar el primer umbral fija un piso de nivel Alto; el segundo, de nivel Crítico.</p>
+      <p><b>Ambiente, roya.</b> Temperatura de 16 a 28 °C, óptimo cerca de 22 °C <sup><a href="#fuente-1">[1]</a><a href="#fuente-9">[9]</a></sup>; necesita agua libre sobre la hoja <sup><a href="#fuente-2">[2]</a></sup>, y la humedad relativa lo aproxima. Una variedad resistente reduce este componente a 60 %.</p>
+      <p><b>Ambiente, broca.</b> Sube con la temperatura y baja con la altitud <sup><a href="#fuente-4">[4]</a></sup>, la sequía la favorece <sup><a href="#fuente-13">[13]</a></sup> y necesita frutos de más de 20 semanas <sup><a href="#fuente-6">[6]</a></sup>.</p>
+      <p><b>Límite honesto.</b> La forma de las curvas es una aproximación del prototipo, no un modelo validado con datos de Anserma. Confirma las decisiones con el Servicio de Extensión de la Federación Nacional de Cafeteros.</p>
+    </div>
+  </details>
+  <details open>
+    <summary>Referencias</summary>
+    <ol class="refs" id="refs"></ol>
+  </details>
+</section>
+</main>
+</div>
+
+<script>
+const NIVELES = ['Bajo', 'Moderado', 'Alto', 'Crítico'];
+const SEV_PUNTOS = [0, 30, 70, 100];
+const PISO = [0, 0, 50, 75];
+const FACTOR_FRUTOS = [0.3, 0.85, 1];
+const clamp = (x, a, b) => Math.min(b, Math.max(a, x));
+const lerp = (x, x0, x1, y0, y1) => y0 + (y1 - y0) * clamp((x - x0) / (x1 - x0), 0, 1);
+const nivelDe = s => (s < 25 ? 0 : s < 50 ? 1 : s < 75 ? 2 : 3);
+
+function num(v) {
+  if (v === '' || v == null) return null;
+  const n = Number(String(v).replace(',', '.'));
+  return Number.isFinite(n) ? n : NaN;
+}
+
+function factorTempRoya(t) {
+  if (t < 16) return lerp(t, 10, 16, 0.05, 0.4);
+  if (t < 20) return lerp(t, 16, 20, 0.4, 1);
+  if (t <= 24) return 1;
+  if (t <= 28) return lerp(t, 24, 28, 1, 0.4);
+  return lerp(t, 28, 34, 0.4, 0.05);
+}
+const factorHumRoya = rh => lerp(rh, 60, 95, 0.1, 1);
+const factorTempBroca = t => lerp(t, 14, 26, 0.15, 1);
+const factorHumBroca = rh => lerp(rh, 70, 90, 1, 0.7);
+const factorAltBroca = a => lerp(a, 1200, 2000, 1, 0.4);
+
+function severidad(sintoma, medido, u1, u2) {
+  const medSev = medido === null ? 0 : medido <= 0 ? 0 : medido < u1 ? 1 : medido < u2 ? 2 : 3;
+  return { sev: Math.max(sintoma, medSev), conflicto: medido !== null && sintoma - medSev >= 2 };
+}
+const puntaje = (sev, amb) => Math.round(Math.max(0.65 * SEV_PUNTOS[sev] + 0.35 * amb, PISO[sev]));
+
+function validar(raw) {
+  const errores = {};
+  const v = {};
+  ['alt', 'temp', 'rh', 'rinc', 'binf', 'bab', 'bviv'].forEach(k => (v[k] = num(raw[k])));
+  const regla = (k, min, max, unidad, obligatorio) => {
+    if (v[k] === null) { if (obligatorio) errores[k] = 'Este dato es obligatorio.'; }
+    else if (Number.isNaN(v[k])) errores[k] = 'Escribe solo números.';
+    else if (v[k] < min || v[k] > max) errores[k] = `Debe estar entre ${min} y ${max} ${unidad}.`;
+  };
+  regla('alt', 0, 3500, 'm', true);
+  regla('temp', -5, 45, '°C', true);
+  regla('rh', 0, 100, '%', true);
+  ['rinc', 'binf', 'bab', 'bviv'].forEach(k => regla(k, 0, 100, '%', false));
+  return { v, errores, ok: !Object.keys(errores).length };
+}
+
+const R = (txt, refs = []) => ({ txt, refs });
+
+function recomendacionesRoya({ sev, nivel, v, resistente }) {
+  const r = [];
+  if (sev === 0 && nivel <= 1) r.push(R('No hay síntomas. Mantén el monitoreo: mide la incidencia en 10 árboles por hectárea y repite el muestreo con regularidad (por ejemplo, cada mes).', [12]));
+  if (sev === 1) r.push(R('Hay señales tempranas. Mide la incidencia en 10 árboles por hectárea para saber si ya llegó al 5 %, el umbral de daño económico.', [12, 3]));
+  if (sev >= 2) {
+    r.push(R('Tu lote ya superó el umbral del 5 %. Consulta al extensionista para elegir el fungicida entre los evaluados por Cenicafé (cobre, triazoles o estrobilurinas) y seguir la dosis de la etiqueta.', [3, 9]));
+    r.push(R('Concentra el control químico en las floraciones principales de tu lote.', [9]));
+    r.push(R('Un fungicida cúprico pierde cerca de la mitad con la primera lluvia tras la aspersión. Evita aplicarlo si se espera lluvia.', [10]));
+  } else if (nivel >= 1) r.push(R('Ubica las floraciones principales: Cenicafé recomienda concentrar el control químico en esas fechas si la incidencia sube.', [9]));
+  if (sev === 3) r.push(R('Con más de 15 % la pérdida de hojas reduce la producción. En variedades susceptibles, las pérdidas acumuladas en cuatro años llegan entre 23 % y 40 %.', [9]));
+  if (!resistente && nivel >= 2) r.push(R('Planea la renovación con variedades resistentes (Castillo, Cenicafé 1). La resistencia es durable pero no infinita; siembra semilla certificada.', [15]));
+  if (resistente && sev >= 1) r.push(R('Tu variedad es resistente, pero la resistencia no es infinita. Confirma los síntomas con un muestreo.', [15]));
+  if (v.temp < 16 || v.temp > 28) r.push(R('La temperatura está fuera del rango de 16 a 28 °C en que la roya se desarrolla, por eso el componente ambiental es bajo.', [1]));
+  return r;
+}
+
+function recomendacionesBroca({ sev, v }) {
+  const r = [];
+  r.push(R('La base del manejo es el Re-Re: recoger los frutos maduros a tiempo y repasar para retirar frutos secos, sobremaduros y del suelo al terminar la cosecha.', [6]));
+  r.push(R('Los frutos brocados en el suelo siguen siendo reserva de broca por unos 140 días. Recógelos en el repase.', [16]));
+  if (sev === 0) r.push(R('Registra la floración: entre floración y fruto maduro pasan unas 32 semanas y los registros ayudan a prever el ataque. Mide la infestación en 30 árboles por hectárea.', [6, 12]));
+  if (sev === 1) r.push(R('Hay broca por debajo del 2 %. Sigue con Re-Re y repite el muestreo en 30 árboles por hectárea.', [3, 12]));
+  if (v.binf !== null && v.binf >= 2) {
+    if (v.bab === null || v.bviv === null) r.push(R('Llegaste al umbral de acción (2 %). Para decidir si aplicar Beauveria bassiana, completa el porcentaje de brocas en posición A o B y cuántas están vivas.', [3, 7, 8]));
+    else if (v.binf > 2 && v.bab > 50 && v.bviv >= 50) r.push(R('Cumples el criterio de Cenicafé: infestación mayor de 2 %, más de 50 % de brocas en A o B y al menos 50 % vivas. Corresponde aplicar Beauveria bassiana, que no tiene periodo de carencia.', [7, 8]));
+    else r.push(R('No cumples todo el criterio para Beauveria bassiana (infestación mayor de 2 %, más de 50 % en A o B y al menos 50 % vivas). Refuerza el Re-Re y vuelve a medir.', [7, 8]));
+  } else if (sev >= 2 && v.binf === null) r.push(R('Lo que ves sugiere infestación alta, pero falta medirla. Muestrea 30 árboles por hectárea y abre 2 o 3 frutos brocados por sitio para ver la posición de la broca.', [12, 6]));
+  if (sev === 3) r.push(R('Superaste el 5 % (daño económico). Consulta al extensionista de inmediato, evita que la broca vuele durante la recolección y el beneficio, y espera afectación de la calidad.', [3, 7]));
+  if (v.rh <= 70) r.push(R('Con humedad baja o época seca, la broca se reproduce más en los frutos secos del árbol y del suelo. Prioriza el repase.', [13]));
+  return r;
+}
+
+function evaluar(raw) {
+  const { v, errores, ok } = validar(raw);
+  if (!ok) return { ok: false, errores };
+  const avisos = [];
+  if (v.alt < 1000 || v.alt > 2200) avisos.push('La altitud es poco habitual para café arábica andino (1.000 a 2.000 m aprox.). Verifica el dato; el resultado puede ser poco confiable.');
+  if (v.temp < 10 || v.temp > 32) avisos.push('La temperatura es extrema para un cafetal. Verifica que sea el promedio del aire en el lote.');
+  const frutos = Number(raw.frutos) || 0;
+  const resistente = raw.variedad === 'res';
+
+  const sr = severidad(Number(raw.rsint) || 0, v.rinc, 5, 15);
+  const sb = severidad(Number(raw.bsint) || 0, v.binf, 2, 5);
+  if (sr.conflicto) avisos.push('Roya: lo que ves es más grave que tu incidencia medida. Repite el muestreo; el cálculo usa el valor más alto.');
+  if (sb.conflicto) avisos.push('Broca: lo que ves es más grave que tu infestación medida. Repite el muestreo; el cálculo usa el valor más alto.');
+  if (v.binf !== null && v.binf >= 2 && (v.bab === null) !== (v.bviv === null)) avisos.push('Completa los dos datos de posición de la broca (A o B, y vivas) para aplicar el criterio de Beauveria.');
+
+  const ft = factorTempRoya(v.temp), fh = factorHumRoya(v.rh), fv = resistente ? 0.6 : 1;
+  const ambR = 100 * ft * fh * fv, scoreR = puntaje(sr.sev, ambR), nivelR = nivelDe(scoreR);
+  const bt = factorTempBroca(v.temp), bh = factorHumBroca(v.rh), ba = factorAltBroca(v.alt), bf = FACTOR_FRUTOS[frutos] ?? 1;
+  const ambB = 100 * bt * bh * ba * bf, scoreB = puntaje(sb.sev, ambB), nivelB = nivelDe(scoreB);
+
+  return {
+    ok: true, avisos, v,
+    roya: {
+      score: scoreR, nivel: nivelR, ambiente: Math.round(ambR),
+      factores: [
+        { nombre: 'Temperatura', valor: ft, txt: v.temp + ' °C', refs: [1], why: ft >= 0.99 ? 'Dentro del óptimo de la roya (cerca de 22 °C).' : v.temp >= 16 && v.temp <= 28 ? 'Dentro del rango de 16 a 28 °C, pero lejos del óptimo.' : 'Fuera del rango de 16 a 28 °C.' },
+        { nombre: 'Humedad relativa', valor: fh, txt: v.rh + ' %', refs: [2, 18], why: 'Indicador de agua libre sobre la hoja, que la roya necesita para germinar.' },
+        { nombre: 'Variedad', valor: fv, txt: resistente ? 'Resistente' : 'Susceptible', refs: [15], why: resistente ? 'La resistencia reduce el componente ambiental, no lo elimina.' : 'Sin resistencia: el ambiente pesa completo.' }
+      ],
+      evidencia: ['Sin evidencia de roya', 'Señales tempranas', 'Incidencia entre 5 y 15 %', 'Incidencia mayor de 15 %'][sr.sev],
+      recs: recomendacionesRoya({ sev: sr.sev, nivel: nivelR, v, resistente })
+    },
+    broca: {
+      score: scoreB, nivel: nivelB, ambiente: Math.round(ambB),
+      factores: [
+        { nombre: 'Temperatura', valor: bt, txt: v.temp + ' °C', refs: [4, 16], why: 'La broca se desarrolla más rápido con más calor.' },
+        { nombre: 'Altitud', valor: ba, txt: v.alt + ' m', refs: [4, 16], why: 'A mayor altitud hay menos infestación.' },
+        { nombre: 'Humedad relativa', valor: bh, txt: v.rh + ' %', refs: [13], why: 'La época seca favorece su reproducción.' },
+        { nombre: 'Frutos disponibles', valor: bf, txt: ['Sin frutos maduros', 'En desarrollo', 'Cosecha en curso'][frutos] || '', refs: [6], why: 'Sin frutos de más de 20 semanas la broca no se reproduce.' }
+      ],
+      evidencia: ['Sin evidencia de broca', 'Infestación menor de 2 %', 'Infestación de 2 a 5 % (umbral de acción)', 'Infestación mayor de 5 % (daño económico)'][sb.sev],
+      recs: recomendacionesBroca({ sev: sb.sev, v })
+    }
+  };
+}
+
+const FUENTES = [
+  [1, 'Gil, L. F. (2003). Roya anaranjada. <i>Enfermedades del cafeto en Colombia</i>. Cenicafé.', 'https://biblioteca.cenicafe.org/bitstream/10778/4380/1/cenbook-0025_19.pdf'],
+  [2, 'Guzmán-Martínez, O. y Gómez-Gómez, L. Permanencia del agua libre sobre las hojas del cafeto. <i>Cenicafé</i>, 36(3).', 'https://biblioteca.cenicafe.org/jspui/bitstream/10778/1057/1/arc036%2803%2989-102.pdf'],
+  [3, 'Cenicafé (2024). <i>Boletín Estado fitosanitario de la caficultura colombiana</i>.', 'https://publicaciones.cenicafe.org/index.php/fitosanitario/article/download/2315/2075/1823'],
+  [4, 'Bacca, T. et al. (2021). Efecto de la altitud y del sombrío sobre la infestación por <i>Hypothenemus hampei</i> en Nariño. <i>Boletín Científico, Univ. de Caldas</i>, 25(2).', 'https://revistasojs.ucaldas.edu.co/index.php/boletincientifico/article/view/5147'],
+  [5, 'Liebig, T. et al. (2019). Interactive effects of altitude, microclimate and shading system on coffee leaf rust. <i>J. Plant Interactions</i>, 14(1).', 'https://doi.org/10.1080/17429145.2019.1643934'],
+  [6, 'Cenicafé. <i>Información para el manejo integrado de la broca</i>.', 'https://publicaciones.cenicafe.org/index.php/libros_manuales/article/download/3192/3213/2958'],
+  [7, 'Agronegocios. Los consejos del profesor Yarumo: la broca durante la recolección.', 'https://www.agronegocios.co/agricultura/los-consejos-del-profesor-yarumo-la-broca-durante-la-recoleccion-y-sus-beneficios-3019203'],
+  [8, 'Posada-Flórez, F. J. et al. (2004). Los insecticidas y el hongo <i>Beauveria bassiana</i> en el control de la broca. <i>Cenicafé</i>, 55(2).', 'https://www.cenicafe.org/es/publications/arc055%2802%29136-149.pdf'],
+  [9, 'Agronegocios. La roya del café es una permanente amenaza para cultivos nacionales.', 'https://www.agronegocios.co/agricultura/la-roya-del-cafe-es-una-permanente-amenaza-para-cultivos-nacionales-2711959'],
+  [10, 'Cenicafé. Roya anaranjada, control químico. <i>Enfermedades del cafeto en Colombia</i>.', 'https://biblioteca.cenicafe.org/jspui/bitstream/10778/993/22/20.%20Roya%20anaranjada.pdf'],
+  [11, 'Cenicafé. <i>El control natural de insectos en el ecosistema cafetero colombiano</i>, cap. 2.', 'https://biblioteca.cenicafe.org/bitstream/10778/4234/1/CAP2.pdf'],
+  [12, 'Estudio de incidencia e infestación de plagas limitantes del café, 2006–2007. Metodología Cenicafé.', 'https://dialnet.unirioja.es/descarga/articulo/6117722.pdf'],
+  [13, 'Cenicafé. <i>Manejo integrado de la broca del café</i>.', 'https://biblioteca.cenicafe.org/bitstream/10778/4340/1/cenbook-0026_24.pdf'],
+  [14, 'Sagan, C. (1995). <i>El mundo y sus demonios</i>. Crítica.', 'https://www.planetadelibros.com/libro-el-mundo-y-sus-demonios/455635'],
+  [15, 'Cenicafé. Preguntas y respuestas sobre roya.', 'https://www.cenicafe.org/es/documents/PR_Roya.pdf'],
+  [16, 'Constantino, L. M. et al. (2021). Coffee berry borer emergence from ground fruits across altitudes. <i>Neotropical Entomology</i>, 50.', 'https://doi.org/10.1007/s13744-021-00863-5'],
+  [17, 'Avelino, J. et al. (2015). The coffee rust crises in Colombia and Central America (2008–2013). <i>Food Security</i>, 7.', 'https://alliancebioversityciat.org/publications-data/coffee-rust-crises-colombia-and-central-america-2008-2013-impacts-plausible'],
+  [18, 'Bebber, D. P. et al. (2016). Modelling coffee leaf rust risk in Colombia with climate reanalysis data. <i>Phil. Trans. R. Soc. B</i>, 371.', 'https://pmc.ncbi.nlm.nih.gov/articles/PMC5095537']
+];
+
+const $ = id => document.getElementById(id);
+const CAMPOS = ['alt', 'temp', 'rh', 'variedad', 'frutos', 'rinc', 'bsint', 'binf', 'bab', 'bviv'];
+const EJEMPLO = { alt: '1750', temp: '20', rh: '85', variedad: 'sus', frutos: '1', rinc: '', bsint: '0', binf: '', bab: '', bviv: '', rsint: '0' };
+const VACIO = { ...EJEMPLO, alt: '', temp: '', rh: '' };
+let ultimo = null;
+
+const leer = () => {
+  const raw = Object.fromEntries(CAMPOS.map(k => [k, $(k).value]));
+  raw.rsint = (document.querySelector('input[name="rsint"]:checked') || {}).value || '0';
+  return raw;
+};
+const escribir = d => {
+  CAMPOS.forEach(k => ($(k).value = d[k]));
+  document.querySelector(`input[name="rsint"][value="${d.rsint}"]`).checked = true;
+};
+const refsHtml = refs => refs && refs.length ? '<sup>' + refs.map(n => `<a href="#fuente-${n}">[${n}]</a>`).join('') + '</sup>' : '';
+
+function tarjeta(titulo, latin, d) {
+  const el = document.createElement('article');
+  el.className = 'card';
+  el.style.cssText = `--lc:var(--c${d.nivel});--lb:var(--b${d.nivel})`;
+  const factores = d.factores.map(f => `<li><span>${f.nombre} ${refsHtml(f.refs)}</span><span class="v">${f.txt}</span>
+    <span class="bar" role="img" aria-label="Factor ${Math.round(f.valor * 100)} de 100"><i style="width:${Math.round(f.valor * 100)}%"></i></span>
+    <span class="why">${f.why}</span></li>`).join('');
+  const recs = d.recs.map(r => `<li>${r.txt} ${refsHtml(r.refs)}</li>`).join('');
+  el.innerHTML = `
+    <div class="card-head"><div><h2>${titulo}</h2><em>${latin}</em></div><span class="pill">Riesgo ${NIVELES[d.nivel].toLowerCase()}</span></div>
+    <div class="card-body">
+      <div>
+        <div class="score"><b>${d.score}</b><span class="hint">de 100</span></div>
+        <div class="meter" role="img" aria-label="Puntaje ${d.score} de 100, nivel ${NIVELES[d.nivel]}"><i></i><i></i><i></i><i></i><b style="left:${clamp(d.score, 1, 99)}%"></b></div>
+        <div class="scale"><span>0</span><span>25</span><span>50</span><span>75</span><span>100</span></div>
+      </div>
+      <div class="facts"><div>Evidencia en campo<b>${d.evidencia}</b></div><div>Ambiente<b>${d.ambiente} de 100</b></div></div>
+      <div><h3>Qué hacer</h3><ul class="recs">${recs}</ul></div>
+      <details style="margin:0"><summary>Qué pesa en el ambiente</summary><ul class="factors" style="margin-top:12px">${factores}</ul></details>
+    </div>`;
+  return el;
+}
+
+function marcarErrores(errores) {
+  ['alt', 'temp', 'rh', 'rinc', 'binf', 'bab', 'bviv'].forEach(k => {
+    const msg = (errores && errores[k]) || '';
+    $(k + '-e').textContent = msg;
+    $(k).setAttribute('aria-invalid', msg ? 'true' : 'false');
+  });
+}
+
+function ejecutar() {
+  const raw = leer();
+  const inf = num(raw.binf);
+  $('bextra').classList.toggle('hidden', !(inf !== null && inf >= 2));
+  const res = evaluar(raw);
+  const cont = $('resultados');
+  cont.textContent = '';
+  if (!res.ok) {
+    marcarErrores(res.errores);
+    ultimo = null;
+    cont.innerHTML = '<div class="empty">Corrige los datos marcados en rojo para ver el riesgo de roya y de broca.</div>';
+    $('guardar').disabled = true;
+    return;
+  }
+  marcarErrores(null);
+  ultimo = res;
+  $('guardar').disabled = false;
+  res.avisos.forEach(a => {
+    const w = document.createElement('div');
+    w.className = 'warn';
+    w.textContent = a;
+    cont.appendChild(w);
+  });
+  cont.appendChild(tarjeta('Roya del cafeto', 'Hemileia vastatrix', res.roya));
+  cont.appendChild(tarjeta('Broca del café', 'Hypothenemus hampei', res.broca));
+  cont.insertAdjacentHTML('beforeend', '<p class="disclaimer">Prototipo educativo. Los umbrales vienen de publicaciones de Cenicafé; los pesos del puntaje son una aproximación no validada con datos de Anserma. Confirma cualquier aplicación de insumos con el Servicio de Extensión de la Federación Nacional de Cafeteros.</p>');
+}
+
+const STORE = 'cafe-riesgo-historial-v1';
+let hist = [];
+const cargar = () => { try { hist = JSON.parse(localStorage.getItem(STORE)) || []; } catch (e) { hist = []; } };
+const guardarHist = () => { try { localStorage.setItem(STORE, JSON.stringify(hist)); } catch (e) {} };
+
+function boton(texto, fn) {
+  const b = document.createElement('button');
+  b.type = 'button'; b.className = 'ghost sm'; b.textContent = texto;
+  b.addEventListener('click', fn);
+  return b;
+}
+
+function pintarHist() {
+  const ul = $('hist');
+  ul.textContent = '';
+  const TRAD = { ninguna: 'No consulté almanaque', alto: 'Almanaque: esperaba plaga', bajo: 'Almanaque: no esperaba plaga' };
+  hist.forEach(h => {
+    const li = document.createElement('li');
+    const meta = document.createElement('div');
+    meta.className = 'meta';
+    meta.innerHTML = `<b></b><span class="tag t${h.r}">Roya ${NIVELES[h.r]}</span><span class="tag t${h.b}">Broca ${NIVELES[h.b]}</span><span></span>`;
+    meta.children[0].textContent = `${h.fecha} · ${h.alt} m · ${h.temp} °C · ${h.rh} %`;
+    meta.children[3].textContent = TRAD[h.trad];
+    li.appendChild(meta);
+    const acc = document.createElement('div');
+    acc.className = 'btns';
+    if (h.res === null) {
+      acc.insertAdjacentHTML('beforeend', '<span class="hint">Resultado del muestreo siguiente:</span>');
+      [['Superó el umbral', true], ['No superó', false]].forEach(([t, val]) =>
+        acc.appendChild(boton(t, () => { h.res = val; guardarHist(); pintarHist(); })));
+    } else {
+      const s = document.createElement('span');
+      s.textContent = h.res ? 'Resultado: la plaga superó el umbral.' : 'Resultado: la plaga no superó el umbral.';
+      acc.appendChild(s);
+      acc.appendChild(boton('Corregir', () => { h.res = null; guardarHist(); pintarHist(); }));
+    }
+    acc.appendChild(boton('Borrar', () => { hist = hist.filter(e => e.id !== h.id); guardarHist(); pintarHist(); }));
+    li.appendChild(acc);
+    ul.appendChild(li);
+  });
+  pintarResumen();
+}
+
+function pintarResumen() {
+  const cerrados = hist.filter(h => h.res !== null);
+  const metodo = cerrados.filter(h => (Math.max(h.r, h.b) >= 2) === h.res).length;
+  const conTrad = cerrados.filter(h => h.trad !== 'ninguna');
+  const trad = conTrad.filter(h => (h.trad === 'alto') === h.res).length;
+  const t = $('tally');
+  t.innerHTML = `<div><b>${cerrados.length ? metodo + ' de ' + cerrados.length : 'Sin datos'}</b>aciertos del método con datos de finca</div>
+    <div><b>${conTrad.length ? trad + ' de ' + conTrad.length : 'Sin datos'}</b>aciertos del almanaque o tradición</div>`;
+  if (cerrados.length > 0 && cerrados.length < 10)
+    t.insertAdjacentHTML('beforeend', '<p class="hint" style="grid-column:1/-1">Con menos de 10 evaluaciones cerradas la comparación aún no es concluyente. Sigue registrando, también los casos en que la tradición acertó.</p>');
+}
+
+function init() {
+  $('refs').innerHTML = FUENTES.map(([n, txt, url]) =>
+    `<li id="fuente-${n}">${txt} <a href="${url}" target="_blank" rel="noopener">Abrir</a></li>`).join('');
+  cargar();
+  pintarHist();
+  document.querySelectorAll('#form input, #form select').forEach(el => {
+    el.addEventListener('input', () => { $('ejemplo-nota').classList.add('hidden'); ejecutar(); });
+    el.addEventListener('change', ejecutar);
+  });
+  $('form').addEventListener('submit', e => e.preventDefault());
+  $('limpiar').addEventListener('click', () => { escribir(VACIO); $('ejemplo-nota').classList.add('hidden'); ejecutar(); $('alt').focus(); });
+  $('ejemplo').addEventListener('click', () => { escribir(EJEMPLO); $('ejemplo-nota').classList.remove('hidden'); ejecutar(); });
+  $('guardar').addEventListener('click', () => {
+    if (!ultimo) return;
+    const { v, roya, broca } = ultimo;
+    hist.unshift({ id: Date.now(), fecha: new Date().toLocaleDateString('es-CO'), alt: v.alt, temp: v.temp, rh: v.rh, r: roya.nivel, b: broca.nivel, trad: $('trad').value, res: null });
+    hist = hist.slice(0, 50);
+    guardarHist();
+    pintarHist();
+    $('guardar-msg').textContent = 'Guardada. Cuando tengas el muestreo siguiente, registra el resultado abajo.';
+  });
+  ejecutar();
+}
+init();
+</script>
+</body>
+</html>
